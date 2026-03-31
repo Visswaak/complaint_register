@@ -22,16 +22,18 @@ const configuredOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
     .filter(Boolean);
 
 const isLocalDevOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+const isConfiguredOrigin = (origin) => configuredOrigins.includes(origin);
 
 const corsOptions = {
     origin(origin, callback) {
         if (!origin) return callback(null, true);
 
-        if (configuredOrigins.includes(origin) || isLocalDevOrigin(origin)) {
+        if (isConfiguredOrigin(origin) || isLocalDevOrigin(origin)) {
             return callback(null, true);
         }
 
-        return callback(new Error(`CORS blocked for origin: ${origin}`));
+        console.error('CORS blocked for origin:', origin, 'allowed:', configuredOrigins);
+        return callback(null, false);
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
